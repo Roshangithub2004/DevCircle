@@ -3,13 +3,14 @@ const connectDB  = require('./config/database.js');
 const app = express();
 const User = require("./models/user.js")
 
+app.use(express.json())
+
+// app.post('/signUp', async(req, res)=>{
+//     console.log(req.body)
+// })  
 
 app.post('/signUp', async(req, res) =>{
-    const user = new User({ 
-        fullName:'Roshan Shirbhate',
-        email: 'roshanshirbhate654@gmail.com',
-        password: 'Roshan@2004'
-    })
+    const user = new User(req.body)
 
     try{
         await user.save()
@@ -18,6 +19,44 @@ app.post('/signUp', async(req, res) =>{
         res.status(400).send("Something is Invalid", err)
     }
     
+})
+
+// Get user by email
+
+app.get('/user', async(req, res)=>{
+    const userEmail = req.body.email
+    try{
+
+        // find one email form database if same emails are there and give oldest or first indexed from database
+
+        // const user = await User.findOne({email: userEmail})
+        // if( user.length ===0){
+        //     res.status(400).send("User not found")
+        // }
+        // res.send(user)
+
+
+        // find users from database with same email ids
+        const user = await User.find({email : userEmail})
+        if( user.length ===0){
+            res.status(400).send("User not found")
+        }
+        res.send(user)
+    }
+    catch(err){
+        res.status(400).send("Someting went wrong")
+    }
+})
+// Get feed  
+app.get('/feed', async(req, res)=>{
+    
+    try{
+        const user = await User.find({})
+        res.send(user)
+    }
+    catch(err){
+        res.status(400).send("Someting went wrong")
+    }
 })
 
 connectDB()
